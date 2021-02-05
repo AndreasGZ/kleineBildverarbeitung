@@ -11,28 +11,29 @@
 	<body>
     <h1>Bildverarbeitung</h1>
     <!-- Bilder -->
-    <div>
-      <img src="./bilder/bild (1).jpg"	alt=""
-			 id="original">
+    <div id="canvas-container">
       <canvas id="kopie"></canvas>
     </div>
+		<div id="chooseType">
+			<input type="radio" name="dataType" value="img" checked>
+			<span>Nutze Image Files</span>
+			<input type="radio" name="dataType" value="json">
+			<span>Nutze JSON-Daten</span>
+			<input type="radio" name="dataType" value="storage">
+			<span>Nutze Storage</span><br>
+			<button id="saveJson">Daten in JSON speichern</button>
+			<button id="storeCanvas">Canvas in Storage</button><br>
+			<button id="nextStorage" value="next">Storage vor</button>
+			<button id="prevStorage" value="prev">Storage zurück</buton><br>
+			<button id="clearStorage">Storage löschen</button>
+		</div>
     <!-- Input-felder -->
-    <div>
-      <select class="imageURL" name="imageUrl" id="imageURL" value="./bilder/bild (1).jpg">
-			</select><br>
-			<p>Mitteln: </p>
-			<input type="range" name="range" id="range" value="5" min="1" max="25" step="1">
-			<span id="rangeValue"></span><br>
-			<p>Min Schwellwert: </p>
-			<input type="range" name="rangeMin" id="rangeMin" value="50" min="0" max="254" step="1">
-			<span id="rangeValueMin"></span><br>
-			<p>Max Schwellwert: </p>
-			<input type="range" name="rangeMax" id="rangeMax" value="200" min="1" max="255" step="1">
-			<span id="rangeValueMax"></span><br>
+    <div id="toDo">
 			<select class="model" name="model" id="model" value='none'>
 			</select>
+			<div id="range-container"></div>
     </div>
-    <script src='./js/script2.js'></script>
+    <script type="module" src='./js/script2.js'></script>
 	</body>
 
 </html>
