@@ -581,6 +581,7 @@ function lutImage (min, max) {
         img = document.createElement("canvas");
         canvasContainer.insertBefore( img ,imgCanvas);
       }
+      img.id = "jsonCanvas";
       img.setAttribute("width", "200px");
       img.setAttribute("height", "200px");
       setTimeout(function(){
@@ -594,6 +595,7 @@ function lutImage (min, max) {
         img = document.createElement("canvas");
         canvasContainer.insertBefore( img ,imgCanvas);
       }
+      img.id = "jsonCanvas";
       img.setAttribute("width", "200px");
       img.setAttribute("height", "200px");
       setTimeout(function(){
@@ -710,7 +712,6 @@ function loadJson(canvasElement){
     }
     canvasElement.setAttribute("width", json.width);
     canvasElement.setAttribute("height", json.height);
-    canvasElement.id = "jsonCanvas";
     let cvJson = canvasElement.getContext('2d');
     cvJson.putImageData(neuesImg, 0, 0);
     clearCanvas();
@@ -764,7 +765,6 @@ function loadStorage(canvasElement, position){
     }
     canvasElement.setAttribute("width", storageObj.width);
     canvasElement.setAttribute("height", storageObj.height);
-    canvasElement.id = "jsonCanvas";
     let cvJson = canvasElement.getContext('2d');
     cvJson.putImageData(neuesImg, 0, 0);
     clearCanvas();
