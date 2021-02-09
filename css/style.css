@@ -1,0 +1,31 @@
+/* Grundeinstellung */
+ *{
+	padding:0px;
+	margin:0px;
+	border:0px;
+	box-sizing:border-box;}
+
+section, aside, article, main, header, footer, nav{
+	display:block;}
+
+html, body{
+  min-height: 100%;
+  padding-top: 20px;
+}
+
+body{
+  background-image: linear-gradient(to bottom right, #2d8659, #ffffe6);
+  text-align: center;
+}
+
+img, canvas{
+  margin: 20px;
+}
+
+input, button, select{
+  margin: 5px;
+  padding: 7px 15px;
+  background-color: #99ffbb;
+  border-radius: 5px;
+  border: 1px solid #206040;
+}
