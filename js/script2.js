@@ -7,8 +7,7 @@ window.onload = () => {
   // Array für den Zugriff auf die verschiedenen Funktionen
   const modelArr = ['none', 'invertiert', 'mitteln', 'schwellwert', 'Graubild',
         'Bild ebnen', 'Farbkanal Rot', 'Farbkanal Grün', 'Farbkanal Blau',
-        'Farbkanal RG', 'Farbkanal GB', 'Farbkanal BR', 'LUT', 'Mittelwert und Abweichung',
-      'Farbenspiel'];
+        'Farbkanal RG', 'Farbkanal GB', 'Farbkanal BR', 'LUT', 'Mittelwert und Abweichung'];
   // Zugriff auf die DOM-Elemente
   let canvasContainer = document.getElementById('canvas-container');
   let imgCanvas = document.getElementById('kopie');
