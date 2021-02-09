@@ -1,3 +1,15 @@
+/*
+  Eigene Bibliothek zum Zeichnen von Werten
+  Veränderungsvorschläge:
+    Werte auf der Achse sollten zuletzt gezeichnet werden, da diese sonst
+    überzeichnet werden.
+
+    Möglichkeit zum Zeichnen von Balkendiagramen fehlt noch.
+    Kuchendiagramme sind auch nicht vorhanden.
+    Alternativ vielleicht noch eine Diagram, wie in MAthcad, bei dem die Werte
+      auf einem Kreis mit Achsen angezeigt werden -> sin, cos etc.
+*/
+
 class MathGraph {
   constructor(canvasId, width, height){
     this.canvas = canvasId;

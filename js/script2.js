@@ -7,7 +7,8 @@ window.onload = () => {
   // Array für den Zugriff auf die verschiedenen Funktionen
   const modelArr = ['none', 'invertiert', 'mitteln', 'schwellwert', 'Graubild',
         'Bild ebnen', 'Farbkanal Rot', 'Farbkanal Grün', 'Farbkanal Blau',
-        'Farbkanal RG', 'Farbkanal GB', 'Farbkanal BR', 'LUT'];
+        'Farbkanal RG', 'Farbkanal GB', 'Farbkanal BR', 'LUT', 'Mittelwert und Abweichung',
+      'Farbenspiel'];
   // Zugriff auf die DOM-Elemente
   let canvasContainer = document.getElementById('canvas-container');
   let imgCanvas = document.getElementById('kopie');
@@ -15,12 +16,16 @@ window.onload = () => {
   let model = document.getElementById('model');
   let selectContainer = document.getElementById("toDo");
   let rangeContainer = document.getElementById('range-container');
-  let img, bildDaten, pfad = [], json, storagePosition = localStorage.length;
+  let img, bildDaten, pfad = [], json = {}, storagePosition = localStorage.length;
   let imgDatenObjekt = {
     width: "",
     height: "",
     data: []
   };
+  let currentPath = "./bilder/bild (1).jpg";
+  let currentModel = modelArr[0];
+  let min = 1;
+  let max = 255;
   let saveJsonBtn = document.getElementById("saveJson");
   let storage = document.getElementById("storeCanvas");
   let nextStorage = document.getElementById("nextStorage");
@@ -45,22 +50,25 @@ window.onload = () => {
     moveInStorage(this.value); });
   clearStorage.addEventListener("click",function(){
     localStorage.clear();
-    setTimeout(chooseDataType(),10);
+    chooseDatas[0].checked = true;
+    chooseDataType();
   });
   // addEventListener für die Radiobuttons
   chooseDatas[0].addEventListener("change", chooseDataType);
   chooseDatas[1].addEventListener("change", chooseDataType);
+  chooseDatas[2].addEventListener("change", chooseDataType);
 
   // Das Selectfeld (model) bekommt hier die verschiedenen Optionen zugewiesen
-  modelArr.map((user, i) => {
+  modelArr.map((pfade, i) => {
     let option = document.createElement('option');
-    option.value = user;
-    option.appendChild(document.createTextNode(user));
+    option.value = pfade;
+    option.appendChild(document.createTextNode(pfade));
     model.appendChild(option);
   });
 
   // Wenn das Select-Element verlassen wird, soll die entsprechende Funktion aufgerufen werden
   model.addEventListener('change', function(){
+    currentModel = model.value;
     showModel();
   }); //Beende model wählen
 
@@ -95,7 +103,11 @@ function invertImage (){
 // ################################################################################
 
 function mittelImage(size) {
+  // Berechnung noch vereinfachen, sodass Zeit eingesparrt wird
+  // erstes und letztes Element immer ergänzen/ ändern
+  console.log(size);
   if(imgCanvas.width - size < 30) return;
+  if(min > 25) min = 10;
   if(rangeContainer.children.length != 1) {
     erzeugeRange(1, 1, 25);
   }
@@ -368,19 +380,96 @@ function lutImage (min, max) {
   console.timeEnd("LUT");
 } //Beende LUT
 
+// ################################################################################
+
+  // Berechnen des Mittelwertes und der quadratischen Abweichung
+  function mittelWert_quadrAbweich(){
+    console.time("MW und QA");
+    // Für die Zeilen -> Höhe
+    let mw = [0, 0, 0, 0];
+    let mwArr = [[], [], [], []];
+    let qa = [0, 0, 0, 0]
+    let bildGroesse = imgCanvas.width * imgCanvas.height;
+    let i = 0;
+    for(let z = 0; z < bildDaten.r.length; z++){
+      // Für die Spalten -> einzelne Werte
+      for(let s = 0; s < imgCanvas.width; s++){
+        mw = [
+          mw[0] + bildDaten.r[z][s],
+          mw[1] + bildDaten.g[z][s],
+          mw[2] + bildDaten.b[z][s],
+          mw[3] + bildDaten.a[z][s]
+        ];
+        mwArr[0].push(bildDaten.r[z][s]);
+        mwArr[1].push(bildDaten.g[z][s]);
+        mwArr[2].push(bildDaten.b[z][s]);
+        mwArr[3].push(bildDaten.a[z][s]);
+        i += 4;
+      }
+    }
+    mw = [
+      (mw[0] / bildGroesse),
+      (mw[1] / bildGroesse),
+      (mw[2] / bildGroesse),
+      (mw[3] / bildGroesse)
+    ];
+    let mwQadrat = [
+      Math.pow( mw[0], 2),
+      Math.pow( mw[1], 2),
+      Math.pow( mw[2], 2),
+      Math.pow( mw[3], 2)
+    ];
+    for(let i = 0; i < mwArr[0].length; i++){
+      qa = [
+        qa[0] + Math.pow(mwArr[0][i], 2) - mwQadrat[0],
+        qa[1] + Math.pow(mwArr[1][i], 2) - mwQadrat[1],
+        qa[2] + Math.pow(mwArr[2][i], 2) - mwQadrat[2],
+        qa[3] + Math.pow(mwArr[3][i], 2) - mwQadrat[3],
+      ];
+    }
+    qa = [
+      Math.round(Math.sqrt(qa[0] / bildGroesse)),
+      Math.round(Math.sqrt(qa[1] / bildGroesse)),
+      Math.round(Math.sqrt(qa[2] / bildGroesse)),
+      Math.round(Math.sqrt(qa[3] / bildGroesse))
+    ];
+    let message = `RGBA(${Math.round(mw[0])}, ${Math.round(mw[1])}, ${Math.round(mw[2])}, ${Math.round(mw[3])})`;
+    clearCanvas();
+    cv.font = "16px";
+    cv.fillText("Mittelwert", 10, 30);
+    cv.fillText(message, 10, 60);
+    message = `RGBA(${qa[0]}, ${qa[1]}, ${qa[2]}, ${qa[3]})`;
+    cv.fillText("Abweichung", 10, 100);
+    cv.fillText(message, 10, 130);
+    let p = document.createElement("p");
+    console.timeEnd("MW und QA");
+  } //Ende Mittelwert und Quadratische Abweichung
+
+
+//Farbenspiel -> Der entsprechenden Kanal soll mit einer Konstante erhöht werden
+/*
+  Wert > 255 -> 0 + rest
+  Auswahlfeld, mit den Kanälen und dem Grauwert
+  Dieses sollspäter wieder gelöscht werden
+*/
+
+//Cooccurrencematrix
+/*
+  Nachbarschaftsrelationen bestimmen
+  Für alle Kanäle
+  Auswahlfeld mit den Kanälen und dem Grauwert
+  Dieses sollspäter wieder gelöscht werden
+  //Farb bwz. Grauwbild anzeigen und zusätzlich ein Canvasfeld mit der Matrix erzeugen
+*/
+
+
 // Ende Bildverarbeitungsalgorithmen
 // ################################################################################
 
 
 // ################################################################################
-  function showModel(min, max){
+  function showModel(){
     removeHisto(model.value);
-    if(!min){
-      min = 1;
-    }
-    if(!max){
-      max= 255;
-    }
     removeRange(model.value);
     switch(model.value){
       case modelArr[1]:
@@ -421,6 +510,9 @@ function lutImage (min, max) {
       case modelArr[12]:
         lutImage(min,max);
         break;
+      case modelArr[13]:
+        mittelWert_quadrAbweich();
+        break;
       default:
         bildDaten = getImageData();
     }
@@ -452,20 +544,19 @@ function lutImage (min, max) {
         allCanvas[i].remove();
       }
     }
-    console.log("removeHisto");
   }
   // } Ende entferne Histogramme
 // ################################################################################
 
 // ################################################################################
   // Funktion um eine Anzahl an ranges zu erzeugen
-  function erzeugeRange(anzahl, min, max){
+  function erzeugeRange(anzahl, minVal, maxVal){
     for(let i = 0; i < anzahl; i++){
       let div = document.createElement("div");
       let range = document.createElement("input");
       range.type = "range";
-      range.min = min;
-      range.max = max;
+      range.min = minVal;
+      range.max = maxVal;
       range.step = 1;
       if(i == 0) range.value = parseInt(min);
       else range.value = parseInt(max);
@@ -488,12 +579,15 @@ function lutImage (min, max) {
       let input = document.querySelectorAll("#range-container input");
       if( anzahl == 1){
         output[0].textContent =  input[0].value;
-        showModel(parseInt(input[0].value));
+        min = parseInt(input[0].value);
+        showModel();
       }
       else if(anzahl == 2){
         output[0].textContent =  input[0].value;
         output[1].textContent =  input[1].value;
-        showModel(parseInt(input[0].value), parseInt(input[1].value));
+        min = parseInt(input[0].value);
+        max = parseInt(input[1].value);
+        showModel();
       }
   } //Ende update Ranges
 // ################################################################################
@@ -544,22 +638,23 @@ function lutImage (min, max) {
       // Erzeugen eines Image-Elements
       img = document.createElement("img");
       img.id = "original";
-      img.src = pfad[0];
+      img.src = currentPath;
       img.style.height = "200px";
       img.style.width = "auto";
       // Image einfügen
       canvasContainer.insertBefore( img ,imgCanvas);
       // Pfade in imageURL laden
-      pfad.map((user, i) => {
+      pfad.map((pfad, i) => {
         let option = document.createElement('option');
-        option.value = user;
-        option.appendChild(document.createTextNode(user));
+        option.value = pfad;
+        option.appendChild(document.createTextNode(pfad));
         imageUrl.appendChild(option);
       });
-      imageUrl.value = pfad[0];
+      imageUrl.value = currentPath;
       imageUrl.addEventListener("change",function(){
-          img.src = imageUrl.value;
-          model.value = modelArr[0];
+          img.src = this.value;
+          model.value = currentModel;
+          currentPath = this.value;
           setTimeout(function(){
             bildDaten = getImageData();
             showModel();
@@ -581,9 +676,9 @@ function lutImage (min, max) {
         img = document.createElement("canvas");
         canvasContainer.insertBefore( img ,imgCanvas);
       }
-      img.id = "jsonCanvas";
       img.setAttribute("width", "200px");
       img.setAttribute("height", "200px");
+      img.id = "jsonCanvas";
       setTimeout(function(){
         loadJson(img);
       },1000);
@@ -595,9 +690,9 @@ function lutImage (min, max) {
         img = document.createElement("canvas");
         canvasContainer.insertBefore( img ,imgCanvas);
       }
-      img.id = "jsonCanvas";
       img.setAttribute("width", "200px");
       img.setAttribute("height", "200px");
+      img.id = "jsonCanvas";
       setTimeout(function(){
         loadStorage(img, storagePosition);
       },1000);
@@ -641,7 +736,7 @@ function lutImage (min, max) {
       b: [],
       a: []
     }
-    if(model.value = modelArr[0]) {
+    if(model.value == modelArr[0]) {
       imgDatenObjekt.width = imageData.width;
       imgDatenObjekt.height = imageData.height;
       imgDatenObjekt.data = imageData.data;
@@ -701,10 +796,12 @@ function lutImage (min, max) {
 // ################################################################################
 //ImageURl soll verschwinden, wenn man nicht mit image-Objekt arbeitet
 function loadJson(canvasElement){
+  console.log(json);
   let xhr = new XMLHttpRequest();
   xhr.onload = function(){
     if(xhr.status != 200) return;
     json = JSON.parse(xhr.response);
+    console.log(json.width);
     // Lese json aus und erstelle ein neues imgObjekt
     let neuesImg = cv.createImageData(json.width, json.height);
     for(let i = 0; i < neuesImg.data.length; i++){
@@ -725,6 +822,7 @@ function loadJson(canvasElement){
     },10);
   }
   xhr.open("GET", "./imageData.json");
+  xhr.setRequestHeader("Cache-Control", "no-cache");
   xhr.send();
 }
 // ################################################################################
