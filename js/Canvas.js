@@ -493,7 +493,7 @@ class MathGraph {
   // Punkte einzeichnen
   drawValues(valX, valY, format ,sizeX, sizeY,minX, minY, maxX, maxY){
     this.clearValues();
-    let lineW = 2;
+    let lineW = 1;
     // Testet auf Zahlen oder Arrays (max. 2 dimenionales Array)
     this.getValues(valX, valY, this.values.x, this.values.y);
     this.getValuesMinMax();
@@ -502,6 +502,7 @@ class MathGraph {
       this.grid(sizeX, sizeY, minX, minY, maxX, maxY);
       let x = this.values.x;
       let y = this.values.y;
+      let colorSheme = ["rgb(255, 0, 0)", "rgb(0, 255, 0)", "rgb(0, 0, 255)"]
       if(x.length > 0 && y.length > 0){
         // Alle Elemente überprüfen
         for(let index = 0; index < x.length; index++){
@@ -519,7 +520,9 @@ class MathGraph {
           else if(Array.isArray(x[index]) && Array.isArray(y[index])){
             this.ctx.beginPath();
             this.ctx.lineWidth = lineW;
-            this.ctx.strokeStyle = this.strokeColor();
+            // Bitte wieder einfügen
+            // this.ctx.strokeStyle = this.strokeColor();
+            this.ctx.strokeStyle = colorSheme[index];
             for(let index2 = 0; index2 < x[index].length; index2++){
               let x0 = x[index][index2];
               let y0 = y[index][index2];
